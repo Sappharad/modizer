@@ -170,6 +170,8 @@ void dc_write32(int addr, uint32 data)
 	printf("W32 %x @ %x\n", data, addr);
 }
 
+extern void *aica_start(const void *config);
+
 void dc_hw_init(void)
 {
 	aica_interface.region[0] = dc_ram;

@@ -5759,10 +5759,10 @@ int tim_main(int argc, char **argv) {
 	free_instruments(0);
     free_soundfonts();
 	free_cache_data();
-	free_wrd();
+	//free_wrd();
 	free_readmidi();
 	free_global_mblock();
-	free_reverb_buffer();
+	//free_reverb_buffer();
 	free_effect_buffers();
 	free(voice);voice=NULL;
 	free_gauss_table();

@@ -312,6 +312,8 @@
 		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
+		9EB8FF8519D3AEA400F8929D /* Default-667h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9EB8FF8419D3AEA400F8929D /* Default-667h@2x.png */; };
+		9EB8FF8719D3AEBB00F8929D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9EB8FF8619D3AEBB00F8929D /* Images.xcassets */; };
 		CC03925217CAC8ED00062381 /* txtMenu11b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03925117CAC8ED00062381 /* txtMenu11b.png */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
 		CC03F2CE12160E9500F2AC65 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CC12160E9500F2AC65 /* button.png */; };
@@ -1783,6 +1785,8 @@
 		50819A2414B3E06F0062FA86 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
 		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		9EB8FF8419D3AEA400F8929D /* Default-667h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-667h@2x.png"; sourceTree = "<group>"; };
+		9EB8FF8619D3AEBB00F8929D /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = modizer/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		CC03925117CAC8ED00062381 /* txtMenu11b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11b.png; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
@@ -2965,6 +2969,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				9EB8FF8419D3AEA400F8929D /* Default-667h@2x.png */,
 				CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */,
 				CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */,
 				CC5C709C17CD1D7900DC7197 /* Accelerate.framework */,
@@ -4067,6 +4072,7 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				9EB8FF8619D3AEBB00F8929D /* Images.xcassets */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				CCFE183B17EF586200C1682F /* MainWindow.xib */,
@@ -5902,10 +5908,12 @@
 				333DA8FC15F48D5E0095494B /* video_pause.png in Resources */,
 				333DA8FD15F48D5E0095494B /* video_pause@2x.png in Resources */,
 				333DA8FE15F48D5E0095494B /* video_play.png in Resources */,
+				9EB8FF8719D3AEBB00F8929D /* Images.xcassets in Resources */,
 				333DA8FF15F48D5E0095494B /* video_play@2x.png in Resources */,
 				333DA90015F48D5E0095494B /* video_previous.png in Resources */,
 				CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */,
 				333DA90115F48D5E0095494B /* video_previous@2x.png in Resources */,
+				9EB8FF8519D3AEA400F8929D /* Default-667h@2x.png in Resources */,
 				336D450515FB3A8B00F0DC00 /* video_next_h.png in Resources */,
 				336D450615FB3A8B00F0DC00 /* video_next_h@2x.png in Resources */,
 				336D450D15FC9D8B00F0DC00 /* video_pause_h.png in Resources */,
@@ -6401,6 +6409,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -6439,6 +6449,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -6551,6 +6563,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;
@@ -6616,6 +6630,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;

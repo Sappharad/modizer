@@ -77,6 +77,7 @@ int aosdk_ssf_samplecycle_ratio=5;
 #include "corlett.h"
 #include "sat_hw.h"
 #include "scsp.h"
+#include "m68k.h"
 
 #define DEBUG_LOADER	(0)
 

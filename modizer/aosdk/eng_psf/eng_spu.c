@@ -54,6 +54,9 @@ static char name[128], song[128], company[128];
 void setlength(signed int stop, signed int fade);
 
 
+extern uint16 SPUreadRegister(uint32 reg);
+extern void SPUwriteRegister(uint32 reg, uint16 val);
+
 int32 spu_start(uint8 *buffer, uint32 length, int32 loop_infinite,int32 defaultlength)
 {
 	int i;

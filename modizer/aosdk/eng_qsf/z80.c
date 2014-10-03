@@ -84,6 +84,7 @@
 #include "z80.h"
 
 #include "mem.h"
+#include "eng_protos.h"
 
 #undef cpu_readmem16
 #undef cpu_readport16

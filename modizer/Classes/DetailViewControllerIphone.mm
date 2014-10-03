@@ -3250,17 +3250,14 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	else {
 		
 		mDeviceType=0; //iphone   (iphone 4 res currently not handled)
-		mDevice_hh=480;
-		mDevice_ww=320;
 		UIScreen* mainscr = [UIScreen mainScreen];
+        mDevice_hh=mainscr.bounds.size.height;
+        mDevice_ww=mainscr.bounds.size.width;
 		if ([mainscr respondsToSelector:@selector(currentMode)]) {
 			if (mainscr.currentMode.size.width>480) {  //iphone 4
 				mDeviceType=2;
 				mScaleFactor=2;
 			}
-            if(mainscr.bounds.size.height>=568) {
-                mDevice_hh=568; //iPhone 5
-            }
 		}
 		
 	}
