@@ -19,6 +19,7 @@ enum MDZ_SETTINGS_TYPE {
     MDZ_BOOLSWITCH,
     MDZ_SLIDER_CONTINUOUS,
     MDZ_SLIDER_DISCRETE,
+    MDZ_SLIDER_DISCRETE_TIME,
     MDZ_TEXTBOX,
     MDZ_MSGBOX
 };
@@ -31,11 +32,16 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_AOSDK,
     SETTINGS_DUMB,
     SETTINGS_GME,
+    SETTINGS_GSF,
     SETTINGS_MODPLUG,
     SETTINGS_SEXYPSF,
     SETTINGS_SID,
     SETTINGS_UADE,
-    SETTINGS_TIMIDITY
+    SETTINGS_TIMIDITY,
+    SETTINGS_VGMPLAY,
+    SETTINGS_VGMSTREAM,
+    SETTINGS_LAZYUSF,
+    SETTINGS_ONLINE
 };
 
 /*
@@ -60,6 +66,8 @@ enum MDZ_SETTINGS {
     MDZ_SETTINGS_FAMILY_ROOT=1,
     MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER,
     GLOB_DefaultMODPlayer,
+    GLOB_DefaultSAPPlayer,
+    GLOB_DefaultVGMPlayer,
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,
@@ -80,6 +88,17 @@ enum MDZ_SETTINGS {
     FTP_USER,
     FTP_PASSWORD,
     FTP_PORT,
+    
+    MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE,
+    ONLINE_MODLAND_CURRENT_URL,
+    ONLINE_MODLAND_URL,
+    ONLINE_MODLAND_URL_CUSTOM,
+    ONLINE_HVSC_CURRENT_URL,
+    ONLINE_HVSC_URL,
+    ONLINE_HVSC_URL_CUSTOM,
+    ONLINE_ASMA_CURRENT_URL,
+    ONLINE_ASMA_URL,
+    ONLINE_ASMA_URL_CUSTOM,
     
     MDZ_SETTINGS_FAMILY_PLUGINS,
     
@@ -102,6 +121,9 @@ enum MDZ_SETTINGS {
     
         MDZ_SETTINGS_FAMILY_GME,
         GME_FADEOUT,
+        GME_RATIO_ONOFF,
+        GME_RATIO,
+        GME_IGNORESILENCE,
         GME_EQ_BASS,
         GME_EQ_TREBLE,
         GME_FX_ONOFF,
@@ -109,19 +131,26 @@ enum MDZ_SETTINGS {
         GME_FX_ECHO,
         GME_FX_PANNING,
     
+        MDZ_SETTINGS_FAMILY_GSF,
+        GSF_SOUNDQUALITY,
+        GSF_INTERPOLATION,
+        GSF_LOWPASSFILTER,
+        GSF_ECHO,
+    
         MDZ_SETTINGS_FAMILY_MODPLUG,
         MODPLUG_MasterVolume,
         MODPLUG_Sampling,
         MODPLUG_StereoSeparation,
-        MODPLUG_Megabass,
-            MODPLUG_BassAmount,
-            MODPLUG_BassRange,
-        MODPLUG_Reverb,
-            MODPLUG_ReverbDepth,
-            MODPLUG_ReverbDelay,
-        MODPLUG_Surround,
-            MODPLUG_SurroundDepth,
-            MODPLUG_SurroundDelay,
+    
+        old_MODPLUG_Megabass,
+            old_MODPLUG_BassAmount,
+            old_MODPLUG_BassRange,
+        old_MODPLUG_Reverb,
+            old_MODPLUG_ReverbDepth,
+            old_MODPLUG_ReverbDelay,
+        old_MODPLUG_Surround,
+            old_MODPLUG_SurroundDepth,
+            old_MODPLUG_SurroundDelay,
     
         MDZ_SETTINGS_FAMILY_SEXYPSF,
         SEXYPSF_Reverb,
@@ -153,11 +182,24 @@ enum MDZ_SETTINGS {
             UADE_PanValue,
         UADE_Gain,
             UADE_GainValue,
+        UADE_NTSC,
+    
+        MDZ_SETTINGS_FAMILY_VGMPLAY,
+        VGMPLAY_Maxloop,
+    
+        MDZ_SETTINGS_FAMILY_VGMSTREAM,
+        VGMSTREAM_ResampleQuality,
+        VGMSTREAM_Forceloop,
+        VGMSTREAM_Maxloop,
+    
+        MDZ_SETTINGS_FAMILY_LAZYUSF,
+        LAZYUSF_ResampleQuality,
     
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
     GLOB_FXAlpha,
     GLOB_FXLOD,
+    GLOB_FXFPS,
     GLOB_FXMSAA,
     GLOB_FXMODPattern,
     GLOB_FXMIDIPattern,
@@ -193,7 +235,7 @@ typedef struct {
 typedef struct {
     //slider
     float slider_value;
-    unsigned int slider_value_nb;
+    //unsigned int slider_value_nb;
     float slider_min_value;
     float slider_max_value;
 } t_setting_slider;

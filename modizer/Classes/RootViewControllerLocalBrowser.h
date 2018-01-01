@@ -14,9 +14,12 @@
 #import "fex.h"
 #import "CMPopTipView.h"
 
+//#import "SWTableViewCell.h"
+#import "SESlideTableViewCell.h"
+
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
+@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
@@ -26,6 +29,11 @@
     int popTipViewRow,popTipViewSection;
 	
 	UIView *waitingView;
+    
+    UIAlertView *alertRename;
+    int renameFile,renameSec,renameIdx;
+    int createFolder;
+
 	
 	IBOutlet UISearchBar *sBar;
     IBOutlet UITableView *tableView;
@@ -77,6 +85,8 @@
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 @property (nonatomic, retain) CMPopTipView *popTipView;
+
+@property (nonatomic, retain) UIAlertView *alertRename;
 
 -(IBAction)goPlayer;
 -(void) refreshViewAfterDownload;

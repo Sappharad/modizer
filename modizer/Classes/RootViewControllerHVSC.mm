@@ -80,6 +80,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	return machine;
 }
 
+-(void) shortWait {
+    [NSThread sleepForTimeInterval:0.1f];
+}
+
 -(void)showWaiting{
 	waitingView.hidden=FALSE;
 }
@@ -221,7 +225,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #endif
 	}
 	
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
@@ -289,17 +293,34 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	[indexTitlesDownload addObject:@"Y"];
 	[indexTitlesDownload addObject:@"Z"];
 	
-    waitingView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2-40,self.view.bounds.size.height/2-40,80,80)];
-	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-	waitingView.opaque=TRUE;
-	waitingView.hidden=TRUE;
-	waitingView.layer.cornerRadius=20;
-	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(20,20,37,37)];
-	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
-	[waitingView addSubview:indView];
-	[indView startAnimating];
-	[indView autorelease];
-	[self.view addSubview:waitingView];
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
+    waitingView = [[UIView alloc] init];
+    waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
+    waitingView.opaque=YES;
+    waitingView.hidden=FALSE;
+    waitingView.layer.cornerRadius=20;
+    
+    UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-20,40,40)];
+    indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
+    [waitingView addSubview:indView];
+    
+    [indView startAnimating];
+    [indView autorelease];
+    
+    waitingView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    /////////////////////////////////////////
 	
 	[super viewDidLoad];
 	
@@ -1286,10 +1307,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (shouldFillKeys&&(browse_depth>0)) {
             
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self shortWait];
             
             [self fillKeys];
             [tableView reloadData];
-            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+            [self hideWaiting];
         } else {
             [self fillKeys];
             [tableView reloadData];
@@ -1315,13 +1337,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 - (void)viewDidAppear:(BOOL)animated {        
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
 
     [super viewDidAppear:animated];		
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
     if (childController) {
         [childController viewDidDisappear:FALSE];
     }
@@ -1501,7 +1523,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
         
         //
@@ -1518,7 +1540,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
-        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         bottomLabel.opaque=TRUE;
         
         bottomImageView = [[[UIImageView alloc] initWithImage:nil]  autorelease];
@@ -1633,14 +1655,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
                         bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_db_entries[section][indexPath.row].song_length/1000/60,(cur_db_entries[section][indexPath.row].song_length/1000)%60];
                     else bottomStr=@"--:--";						
                     if (cur_db_entries[section][indexPath.row].channels_nb)
-                        bottomStr=[NSString stringWithFormat:@"%@ / %02dch",bottomStr,cur_db_entries[section][indexPath.row].channels_nb];
-                    else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];						
+                        bottomStr=[NSString stringWithFormat:@"%@|%02dch",bottomStr,cur_db_entries[section][indexPath.row].channels_nb];
+                    else bottomStr=[NSString stringWithFormat:@"%@|--ch",bottomStr];						
                     if (cur_db_entries[section][indexPath.row].songs) {
-                        if (cur_db_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@ / 1 song",bottomStr];
-                        else bottomStr=[NSString stringWithFormat:@"%@ / %d songs",bottomStr,cur_db_entries[section][indexPath.row].songs];
+                        if (cur_db_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@|1 song",bottomStr];
+                        else bottomStr=[NSString stringWithFormat:@"%@|%d songs",bottomStr,cur_db_entries[section][indexPath.row].songs];
                     }
-                    else bottomStr=[NSString stringWithFormat:@"%@ / - song",bottomStr];		   						
-                    bottomStr=[NSString stringWithFormat:@"%@ / Pl:%d",bottomStr,cur_db_entries[section][indexPath.row].playcount];
+                    else bottomStr=[NSString stringWithFormat:@"%@|- song",bottomStr];		   						
+                    bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_db_entries[section][indexPath.row].playcount];
                     
                     bottomLabel.text=bottomStr;
                     
@@ -1777,7 +1799,33 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 -(IBAction)goPlayer {
-    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) {
+        if (detailViewController) {
+            @try {
+                [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+            } @catch (NSException * ex) {
+                //“Pushing the same view controller instance more than once is not supported”
+                //NSInvalidArgumentException
+                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
+                NSLog(@"ex.name:'%@'", ex.name);
+                NSLog(@"ex.reason:'%@'", ex.reason);
+                //Full error includes class pointer address so only care if it starts with this error
+                NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
+                
+                if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
+                    range.location != NSNotFound) {
+                    //view controller already exists in the stack - just pop back to it
+                    [self.navigationController popToViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                } else {
+                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                }
+            } @finally {
+                //NSLog(@"finally");
+            }
+        } else {
+            NSLog(@"ERROR:pushViewController: viewController is nil");
+        }
+    }
     else {
         UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
@@ -1792,7 +1840,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     
     
     if (browse_depth==0) {
@@ -1827,13 +1876,22 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     mCurrentWinAskedDownload=1;
-                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    
+                    NSString *hvsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text];
+                    NSRange nsr=[hvsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                    if (nsr.location==NSNotFound) {
+                        //HTTP
+                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",hvsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+                    } else {
+                        //FTP
+                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[hvsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+                    }
                 }
             }
         
     }
     
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
     
     
 }
@@ -1842,7 +1900,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     
     
     if (browse_depth==0) {
@@ -1877,11 +1936,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     mCurrentWinAskedDownload=1;
-                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    
+                    NSString *hvsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text];
+                    NSRange nsr=[hvsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                    if (nsr.location==NSNotFound) {
+                        //HTTP
+                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",hvsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    } else {
+                        //FTP
+                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[hvsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    }
+                    
+                    //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    //[downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                 }
             }    
     }
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
 }
 
 
@@ -1969,17 +2040,50 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                 
                                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                                 mCurrentWinAskedDownload=1;
+                                
+                                NSString *hvsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text];
+                                NSRange nsr=[hvsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                                
                                 if (first) {
-                                    if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1]) {
-                                        tooMuch=1;
-                                        break;
+                                    if (nsr.location==NSNotFound) {
+                                        //HTTP
+                                        if (
+                                         [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",hvsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1]
+                                            ) {
+                                            tooMuch=1;
+                                            break;
+                                        }
+                                    } else {
+                                        //FTP
+                                        if (
+                                            [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[hvsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1]
+                                            ) {
+                                            tooMuch=1;
+                                            break;
+                                        }
                                     }
+                                    
                                     first=0;
                                 } else {
-                                    if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:2]) {
-                                        tooMuch=1;
-                                        break;
+                                    if (nsr.location==NSNotFound) {
+                                        //HTTP
+                                        if (
+                                            [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",hvsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:2]
+                                            ) {
+                                            tooMuch=1;
+                                            break;
+                                        }
+                                    } else {
+                                        //FTP
+                                        if (
+                                            [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[hvsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:2]
+
+                                            ) {
+                                            tooMuch=1;
+                                            break;
+                                        }
                                     }
+                                    
                                 }
                             }
                         }
@@ -2015,7 +2119,19 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     } else {
                         [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                         mCurrentWinAskedDownload=1;
-                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                        
+                        
+                        NSString *hvsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text];
+                        NSRange nsr=[hvsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                        if (nsr.location==NSNotFound) {
+                            //HTTP
+                            [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",hvsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                        } else {
+                            //FTP
+                            [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[hvsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                        }
+                        //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                        //[downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                     }
                 } else { //DIR
                     if (browse_depth==1) {//DIR1

@@ -682,17 +682,29 @@ int CPULoadRom(const char *szFile)
       return 0;
     }
   } else*/
+<<<<<<< HEAD
   u8* i;
+=======
+  long int i;
+>>>>>>> 9e519c96120a8f5b4750703ae4ef57ab64402c7c
   if(cpuIsMultiBoot)
   {
 	  rom = (u8 *)malloc(0x200);
 	  loadedsize=0;
+<<<<<<< HEAD
 	  i = utilLoad(szFile,utilIsGBAImage,whereToLoad,size);
+=======
+	  i = (long int)utilLoad(szFile,utilIsGBAImage,whereToLoad,size);
+>>>>>>> 9e519c96120a8f5b4750703ae4ef57ab64402c7c
   }
   else
   {
 	  rom = utilLoad(szFile,utilIsGBAImage,whereToLoad,size);
+<<<<<<< HEAD
 	  i = rom;
+=======
+	  i = (long int) rom;
+>>>>>>> 9e519c96120a8f5b4750703ae4ef57ab64402c7c
   }
 
   //loadedsize = sizeof(*rom);

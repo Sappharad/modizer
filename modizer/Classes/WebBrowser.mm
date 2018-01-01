@@ -20,6 +20,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #define WEB_MODE 0
 #define WCHARTS_MODE 1
 #define GUIDE_MODE 2
+#define WEB_MODE_WITH_LOAD 3
 
 #define TO_LOAD 1
 #define LOADED 2
@@ -129,11 +130,19 @@ static UIAlertView *alertChooseName;
 	
 	valNb=[prefs objectForKey:@"Bookmarks_count"];
 	if (valNb == nil) custom_url_count = 0;
-	custom_url_count = [valNb intValue];
-	for (int i=0;i<custom_url_count;i++) {
-		custom_URL[i]=[[NSString alloc] initWithString:[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]]];
-		custom_URL_name[i]=[[NSString alloc] initWithString:[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]]];
+	else custom_url_count = [valNb intValue];
+    int custom_url_count_tmp=0;
+    for (int i=0;i<custom_url_count;i++) {
+        NSString *tmpstr1,*tmpstr2;
+        tmpstr1=[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
+        tmpstr2=[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
+        if (tmpstr1 && tmpstr2) {
+            custom_URL[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr1];
+            custom_URL_name[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr2];
+            custom_url_count_tmp++;
+        }
 	}
+    custom_url_count=custom_url_count_tmp;
 	
 }
 
@@ -143,7 +152,8 @@ static UIAlertView *alertChooseName;
         case WCHARTS_MODE:[self loadWorldCharts];break;
         case GUIDE_MODE:[self loadUserGuide];break;
         default:
-        case WEB_MODE:[self loadHome];break;
+        case WEB_MODE:
+            [self loadHome];break;
     }
 }
 
@@ -219,6 +229,7 @@ static UIAlertView *alertChooseName;
     if ((currentMode==WCHARTS_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
         if (lastURL) [lastURL release];
+        lastURL=nil;
         if (addressTestField.text==nil) lastURL=nil;
         else lastURL=[[NSString alloc] initWithString:addressTestField.text];        
     }
@@ -235,6 +246,7 @@ static UIAlertView *alertChooseName;
 	if ((currentMode==GUIDE_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
         if (lastURL) [lastURL release];
+        lastURL=nil;
         if (addressTestField.text==nil) lastURL=nil;
         else lastURL=[[NSString alloc] initWithString:addressTestField.text];
     }
@@ -278,6 +290,21 @@ static UIAlertView *alertChooseName;
     
     [self textFieldShouldReturn:addressTestField];
 }
+
+-(void)goToURLwithLoad:(NSString*)address {
+    loadStatus=TO_LOAD;
+    currentMode=WEB_MODE;
+    addressTestField.text=address;
+    
+    [self textFieldShouldReturn:addressTestField];
+    
+    //    toolBar.hidden=FALSE;
+    CGSize cursize=[self currentSize];
+    //    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
+    
+    [webView loadHTMLString:EMPTY_PAGE baseURL:nil];
+}
+
 
 - (void)loadHome {
     CGSize cursize=[self currentSize];
@@ -574,7 +601,7 @@ static UIAlertView *alertChooseName;
 	NSRange r;
 	NSString *endUrl=[[[request URL] absoluteString] lastPathComponent];
 	
-    //	NSLog(@"url : %d %@",navigationType,[[request URL] absoluteString]);
+    //NSLog(@"url : %d %@",navigationType,[[request URL] absoluteString]);
 	
 	if (endUrl==nil) return FALSE;
 	
@@ -612,8 +639,13 @@ static UIAlertView *alertChooseName;
 			int isHVSC=0;
 			NSRange rMODLAND;
 			rMODLAND.location=NSNotFound;
-			rMODLAND=[ftpPath rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
+			rMODLAND=[ftpHost rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
 			if (rMODLAND.location!=NSNotFound) isModland++;
+            else {
+                rMODLAND.location=NSNotFound;
+                rMODLAND=[ftpPath rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
+                if (rMODLAND.location!=NSNotFound) isModland++;
+            }
 			rMODLAND.location=NSNotFound;
 			rMODLAND=[ftpPath rangeOfString:@"/pub/modules/" options:NSCaseInsensitiveSearch];
 			if (rMODLAND.location!=NSNotFound) isModland++;
@@ -648,8 +680,7 @@ static UIAlertView *alertChooseName;
 					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
 					
 					
-					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
-														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
+					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1 filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
 				}
                 [fileManager release];
 				return NO;
@@ -740,7 +771,7 @@ static UIAlertView *alertChooseName;
 - (void)webViewDidFinishLoad:(UIWebView*)webV {
     
     //update addressfield indicator
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    UIButton *button = [[[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)] autorelease];
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
@@ -782,39 +813,93 @@ static UIAlertView *alertChooseName;
 				}
 			}
             if (lastURL) [lastURL release];
+            lastURL=nil;
             lastURL=[[NSString alloc] initWithString:addressTestField.text];
 			[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
 		}
     }
 }
 
+- (CGSize)windowSize {
+    CGSize size;
+    size.width = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] integerValue];
+    size.height = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] integerValue];
+    return size;
+}
+
+- (CGPoint)scrollOffset {
+    CGPoint pt;
+    pt.x = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] integerValue];
+    pt.y = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] integerValue];
+    return pt;
+}
+
+
 -(void) doubleTap :(UITapGestureRecognizer*) sender {
     //  <Find HTML tag which was clicked by user>
     //  <If tag is IMG, then get image URL and start saving>
-    int scrollPositionY = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] intValue];
+/*    int scrollPositionY = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] intValue];
     int scrollPositionX = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] intValue];
-    int displayWidth = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.outerWidth"] intValue];
+    int displayWidth = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] intValue];
     CGFloat scale = webView.frame.size.width / displayWidth;
     CGPoint pt = [sender locationInView:self.webView];
-    pt.x *= scale;
-    pt.y *= scale;
+    pt.x /= scale;
+    pt.y /= scale;
     pt.x += scrollPositionX;
     pt.y += scrollPositionY;
+    NSLog(@"scale:%f displayWidth: %d,x:%f y:%f sx:%f sy:%f",scale,displayWidth, pt.x,pt.y,scrollPositionX,scrollPositionY);
     NSString *js = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).tagName", pt.x, pt.y];
     NSString *tagName = [self.webView stringByEvaluatingJavaScriptFromString:js];
     NSString *imgURL = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).src", pt.x, pt.y];
     NSString *urlToSave = [self.webView stringByEvaluatingJavaScriptFromString:imgURL];
     
-    if ([tagName compare:@"IMG" options:NSCaseInsensitiveSearch]==NSOrderedSame) {
+    NSLog(@"tagName: %@",tagName);
+    NSLog(@"urg: %@",urlToSave);*/
+    
+    CGPoint point = [sender locationInView:self.webView];
+    // convert point from view to HTML coordinate system
+    CGSize viewSize = [webView frame].size;
+    CGSize windowSize = [self windowSize];
+    
+    CGFloat f = windowSize.width / viewSize.width;
+    if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 5.) {
+        point.x = point.x * f;
+        point.y = point.y * f;
+    } else {
+        // On iOS 4 and previous, document.elementFromPoint is not taking
+        // offset into account, we have to handle it
+        CGPoint offset = [self scrollOffset];
+        point.x = point.x * f + offset.x;
+        point.y = point.y * f + offset.y;
+    }
+    
+    // Load the JavaScript code from the Resources and inject it into the web page
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"JSTools" ofType:@"js"];
+    NSString *jsCode = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    [webView stringByEvaluatingJavaScriptFromString: jsCode];
+    
+    
+    // call js functions
+    NSString *tags = [webView stringByEvaluatingJavaScriptFromString:
+                      [NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
+    NSString *tagsSRC = [webView stringByEvaluatingJavaScriptFromString:
+                         [NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
+    
+//    NSLog(@"src : %@",tags);
+//    NSLog(@"src : %@",tagsSRC);
+    
+    NSString *url = nil;
+    if ([tags rangeOfString:@",IMG,"].location != NSNotFound) {
+        url = tagsSRC;    // Here is the image url!
+    }
+    
+    if (url!=nil) {
         found_img=0;
         
-        //NSLog(@"tagName %@",tagName);
-        //NSLog(@"urlToSave %@",urlToSave);
-        
-        if ([[urlToSave pathExtension] compare:@"jpg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
-        if ([[urlToSave pathExtension] compare:@"jpeg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
-        if ([[urlToSave pathExtension] compare:@"png" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=2; //png
-        if ([[urlToSave pathExtension] compare:@"gif" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=3; //gif
+        if ([[url pathExtension] compare:@"jpg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
+        if ([[url pathExtension] compare:@"jpeg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
+        if ([[url pathExtension] compare:@"png" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=2; //png
+        if ([[url pathExtension] compare:@"gif" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=3; //gif
         
         if (found_img) {
             UIAlertView *msgAlert;  
@@ -822,7 +907,7 @@ static UIAlertView *alertChooseName;
             if (cover_currentPlayFilepath) {
                 msgAlert=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Image detected",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]] delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"CoverFolder",@""),NSLocalizedString(@"CoverFile",@""),nil] autorelease];
                 
-                cover_url_string=[[NSString alloc] initWithString:urlToSave];
+                cover_url_string=[[NSString alloc] initWithString:url];
                 cover_expectedContentLength=-1;
                 [msgAlert show];
             }
@@ -839,20 +924,14 @@ static UIAlertView *alertChooseName;
     
     bookmarksVC=nil;
     
-    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-    doubleTap.numberOfTouchesRequired = 2;
-    [self.webView addGestureRecognizer:doubleTap];
-    
 	self.hidesBottomBarWhenPushed = YES;
     
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
-    [btn release];
-
 	
 	webView.scalesPageToFit = YES;
 	webView.autoresizesSubviews = YES;
@@ -875,8 +954,13 @@ static UIAlertView *alertChooseName;
 	
 	[self loadHome];
     [super viewDidLoad];
+    
+    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    doubleTap.numberOfTouchesRequired = 2;
+    [self.webView addGestureRecognizer:doubleTap];
+
 	
-	end_time=clock();	
+	end_time=clock();
 #ifdef LOAD_PROFILE
 	NSLog(@"webbro : %d",end_time-start_time);
 #endif
@@ -926,6 +1010,8 @@ static UIAlertView *alertChooseName;
 
 - (void)dealloc {
 	[self saveBookmarks];
+    if (lastURL) [lastURL release];
+    lastURL=nil;
 	for (int i=0;i<custom_url_count;i++) {
 		[custom_URL[i] release];
 		[custom_URL_name[i] release];

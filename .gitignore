@@ -11,8 +11,6 @@ modizer/Resources/DB/databaseMAIN.modizerdb
 
 *.xcscheme
 
-*.xcscheme
-
 modizer/modizer.xcodeproj/project.xcworkspace/xcuserdata/ymagnien.xcuserdatad/UserInterfaceState.xcuserstate
 
 modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcscheme
@@ -87,8 +85,59 @@ modizer/modizer.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/modizer.xcsche
 
 File_Extractor-1.0.0/libFileExtractor/libFileExtractor.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/libFileExtractor.xcscheme
 
-dumb/build/*
-libGME/build
-libgsf/libgsf/build
-libmodplug/build
-libsidplay1/build
+modizer/Resources/DB/allmods_20150305.zip
+
+modizer/Resources/DB/conv.tmp
+
+modizer/Resources/DB/conv1.tmp
+
+modizer/Resources/backgrounds/1237346308 - copie.jpg
+
+modizer/Resources/Images/slider - copie.png
+
+modizer/Resources/Images/slider@2x - copie.png
+
+modizer/Resources/DB/ASMA/Asma.txt
+
+modizer/Resources/DB/ASMA/Composers.txt
+
+modizer/Resources/DB/ASMA/Update38.txt
+
+modizer/Resources/DB/conv1.sh
+
+modizer/Resources/DB/database.modizerdb.old
+
+modizer/Resources/DB/allmods02012017.zip
+
+modizer/Resources/DB/d.zip
+
+modizer/Resources/DB/database.modizerdb
+
+modizer/Resources/DB/databaseMAIN.modizerdb.bak
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/*
+
+libopenmpt/openmpt-trunk/.svn/*
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-zlib.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-ogg.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/liblibopenmpt.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-vorbis.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-zlib.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/liblibopenmpt.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-vorbis.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-zlib.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/liblibopenmpt.a
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-ogg.a
+
+
+lib2sf/2sf/2sf.xcodeproj/project.xcworkspace/contents.xcworkspacedata

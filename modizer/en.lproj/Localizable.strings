@@ -31,6 +31,9 @@
 "Browser_WorldCharts_MainKey"="World Charts";
 "Browser_WorldCharts_SubKey"="Top lists & download links.";
 
+"Browser_WebVGM_MainKey"="VGMRips";
+"Browser_WebVGM_SubKey"="Video game music rips";
+
 "Browser_UserGuide_MainKey"="User Guide";
 "Browser_UserGuide_SubKey"="Manual, FAQ, tips.";
 
@@ -104,6 +107,7 @@
 "Cannot download from this URL."="Cannot download from this URL.";
 "Yes"="Yes";
 "No"="No";
+"Error"="Error";
 "Warning"="Warning";
 "Close"="Close";
 "First launch or issue encountered last time Modizer was running. Apply default settings?"="First launch or issue encountered last time Modizer was running. Apply default settings?";
@@ -112,6 +116,8 @@
 "Seeking"="Seeking";
 "Too much entries! Playlist will be limited to %d first entries."="Too much entries! Playlist will be limited to %d first entries.";
 "Size: %dKB"="Size: %dKB";
+
+"URL have to start with ftp:// or http://"="URL have to start with ftp:// or http://";
 
 "Settings_General"="General";
 "Settings_Player"="Player";
@@ -160,3 +166,18 @@
 "Default length %d:%.2d"="Default length %d:%.2d";
 
 "Issue %d while trying to delete entry.\n%@"="Issue %d while trying to delete entry.\n%@";
+"Issue %d while trying to renamefile.\n%@"="Issue %d while trying to renamefile.\n%@";
+"Issue %d while moving: %@.\n%@"="Issue %d while moving: %@.\n%@";
+"Issue %d while creating folder\n%@"="Issue %d while creating folder\n%@";
+
+"Choose a subsong"="Choose a subsong";
+"Choose a song"="Choose a song";
+
+"Rename" = "Rename";
+"Delete" = "Delete";
+"Cut" = "Cut";
+"Paste" = "Paste";
+"New folder" = "New folder";
+
+"Nothing to paste"="Nothing to paste";
+"Enter folder name"="Enter folder name";

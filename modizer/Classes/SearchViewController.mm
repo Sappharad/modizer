@@ -41,7 +41,33 @@ static NSFileManager *mFileMngr;
 @synthesize popTipView;
 
 -(IBAction)goPlayer {
-    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) {
+        if (detailViewController) {
+            @try {
+                [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+            } @catch (NSException * ex) {
+                //“Pushing the same view controller instance more than once is not supported”
+                //NSInvalidArgumentException
+                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
+                NSLog(@"ex.name:'%@'", ex.name);
+                NSLog(@"ex.reason:'%@'", ex.reason);
+                //Full error includes class pointer address so only care if it starts with this error
+                NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
+                
+                if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
+                    range.location != NSNotFound) {
+                    //view controller already exists in the stack - just pop back to it
+                    [self.navigationController popToViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                } else {
+                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                }
+            } @finally {
+                //NSLog(@"finally");
+            }
+        } else {
+            NSLog(@"ERROR:pushViewController: viewController is nil");
+        }
+    }
     else {
         UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
@@ -121,7 +147,7 @@ static NSFileManager *mFileMngr;
     
     lastSelectedSearch=0;
     
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
@@ -1071,7 +1097,7 @@ static NSFileManager *mFileMngr;
 	UIButton *buttonLabel                  = [UIButton buttonWithType: UIButtonTypeCustom];
 	buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 20];
 	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (0.0, 1.0);
-	buttonLabel.titleLabel.lineBreakMode   = UILineBreakModeTailTruncation;
+	buttonLabel.titleLabel.lineBreakMode   = (NSLineBreakMode)UILineBreakModeTailTruncation;
 //	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (1.0, 0.0);
 	buttonLabel.frame=CGRectMake(32, 0.0, tableView.bounds.size.width-32*2, 32);
 	
@@ -1356,7 +1382,19 @@ static NSFileManager *mFileMngr;
 			NSString *completePath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  [localPath stringByDeletingLastPathComponent]]];
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:db_entries[indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1];
+            
+            NSString *modland_url=[NSString stringWithFormat:@"%s",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text];
+            NSRange nsr=[modland_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+            if (nsr.location==NSNotFound) {
+                //HTTP
+                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",modland_url,ftpPath] fileName:modFilename filePath:localPath filesize:db_entries[indexPath.row].filesize isMODLAND:1 usePrimaryAction:1];
+                
+            } else {
+                //FTP
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[modland_url substringFromIndex:6] filesize:db_entries[indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1];
+            }
+            
+			//[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:db_entries[indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1];
 		}
 	}
 	if (indexPath.section==3) {//HVSC
@@ -1377,7 +1415,18 @@ static NSFileManager *mFileMngr;
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 			
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+			//[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+            //[downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+            
+            NSString *hvsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text];
+            NSRange nsr=[hvsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+            if (nsr.location==NSNotFound) {
+                //HTTP
+                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",hvsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+            } else {
+                //FTP
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[hvsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+            }
 		}
 	}
     if (indexPath.section==4) {//ASMA
@@ -1398,7 +1447,15 @@ static NSFileManager *mFileMngr;
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 			
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+			NSString *asma_url=[NSString stringWithFormat:@"%s",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text];
+            NSRange nsr=[asma_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+            if (nsr.location==NSNotFound) {
+                //HTTP
+                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",asma_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+            } else {
+                //FTP
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[asma_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+            }
 		}
 	}
 }
@@ -1429,7 +1486,19 @@ static NSFileManager *mFileMngr;
 			NSString *completePath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  [localPath stringByDeletingLastPathComponent]]];
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:db_entries[indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:0];
+            
+            NSString *modland_url=[NSString stringWithFormat:@"%s",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text];
+            NSRange nsr=[modland_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+            if (nsr.location==NSNotFound) {
+                //HTTP
+                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",modland_url,ftpPath] fileName:modFilename filePath:localPath filesize:db_entries[indexPath.row].filesize isMODLAND:1 usePrimaryAction:0];
+                
+            } else {
+                //FTP
+                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[modland_url substringFromIndex:6] filesize:db_entries[indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:0];
+            }
+            
+			
 		}
 	}
 	if (indexPath.section==3) {//HVSC
@@ -1447,7 +1516,18 @@ static NSFileManager *mFileMngr;
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 			
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+			//[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+            //[downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:0];
+            
+            NSString *hvsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text];
+            NSRange nsr=[hvsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+            if (nsr.location==NSNotFound) {
+                //HTTP
+                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",hvsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:0];
+            } else {
+                //FTP
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[hvsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+            }
 		}
 	}
     if (indexPath.section==4) {//ASMA
@@ -1465,7 +1545,15 @@ static NSFileManager *mFileMngr;
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 			
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+            NSString *asma_url=[NSString stringWithFormat:@"%s",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text];
+            NSRange nsr=[asma_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+            if (nsr.location==NSNotFound) {
+                //HTTP
+                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",asma_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:0];
+            } else {
+                //FTP
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[asma_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+            }
 		}
 	}
 }
@@ -1525,7 +1613,7 @@ static NSFileManager *mFileMngr;
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.lineBreakMode=(NSLineBreakMode)UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
         
         //
@@ -1542,7 +1630,7 @@ static NSFileManager *mFileMngr;
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
-        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        bottomLabel.lineBreakMode=(NSLineBreakMode)UILineBreakModeMiddleTruncation;
         bottomLabel.opaque=TRUE;
 
 		actionView = [UIButton buttonWithType: UIButtonTypeCustom];		

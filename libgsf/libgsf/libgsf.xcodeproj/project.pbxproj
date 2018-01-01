@@ -22,7 +22,7 @@
 		CCB6EAEE12FEF0F5007064CB /* arm-new.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EAC612FEF0F4007064CB /* arm-new.h */; };
 		CCB6EAEF12FEF0F5007064CB /* bios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EAC712FEF0F4007064CB /* bios.cpp */; };
 		CCB6EAF012FEF0F5007064CB /* bios.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EAC812FEF0F4007064CB /* bios.h */; };
-		CCB6EAF112FEF0F5007064CB /* GBA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EAC912FEF0F4007064CB /* GBA.cpp */; };
+		CCB6EAF112FEF0F5007064CB /* GBA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EAC912FEF0F4007064CB /* GBA.cpp */; settings = {COMPILER_FLAGS = "-O1"; }; };
 		CCB6EAF212FEF0F5007064CB /* GBA.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EACA12FEF0F4007064CB /* GBA.h */; };
 		CCB6EAF312FEF0F5007064CB /* GBAinline.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EACB12FEF0F4007064CB /* GBAinline.h */; };
 		CCB6EAF412FEF0F5007064CB /* getopt1.c in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EACC12FEF0F4007064CB /* getopt1.c */; };
@@ -290,7 +290,7 @@
 		CCB6EA8112FEEFEC007064CB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0720;
 			};
 			buildConfigurationList = CCB6EA8412FEEFEC007064CB /* Build configuration list for PBXProject "libgsf" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -337,6 +337,9 @@
 		CCB6EA9212FEEFEC007064CB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
@@ -344,7 +347,7 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -356,12 +359,14 @@
 		CCB6EA9312FEEFEC007064CB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SYMROOT = build;

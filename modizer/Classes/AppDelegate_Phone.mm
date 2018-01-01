@@ -20,11 +20,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import <AudioToolbox/AudioToolbox.h>
 #include <sys/xattr.h>
 
+char* strlower(char *Str);
+
 static BOOL backgroundSupported;
 
 char homedirectory[512];
+char bundledirectory[512];
 
-char* strlower(char *Str);
+
 extern "C" {
 
 #include <pthread.h>
@@ -38,7 +41,6 @@ BOOL is_ios7,is_retina;
 @implementation AppDelegate_Phone
 
 @synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC;
-
 
 - (BOOL)addSkipBackupAttributeToItemAtURL
 {
@@ -80,18 +82,20 @@ BOOL is_ios7,is_retina;
 *  System Versioning Preprocessor Macros
 */
 
-#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
-#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
-#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
-#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
-#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+//#include "ParserModland.hpp"
 
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch
 	//
     
     sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
+    
+    sprintf(bundledirectory,"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
+    
+    char allmods_filepath[1024];
+    sprintf(allmods_filepath,"%s/allmods.txt",bundledirectory);
+    
+    //parseModland(allmods_filepath);
     
 	UIDevice* device = [UIDevice currentDevice];
 	backgroundSupported = NO;

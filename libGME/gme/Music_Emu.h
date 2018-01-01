@@ -41,13 +41,17 @@ public:
 	// Info for currently playing track
 	using Gme_File::track_info;
 	blargg_err_t track_info( track_info_t* out ) const;
+    blargg_err_t set_track_info( const track_info_t* in );
+    blargg_err_t set_track_info( const track_info_t* in, int track_number );
 
 	struct Hash_Function
 	{
 		virtual void hash_( byte const* data, size_t size ) BLARGG_PURE( ; )
 	};
 	virtual blargg_err_t hash_( Hash_Function& ) const BLARGG_PURE( ; )
-	
+    
+    blargg_err_t save( gme_writer_t writer, void* your_data) const;
+
 // Track status/control
 
 	// Number of milliseconds played since beginning of track (1000 per second)
@@ -164,7 +168,12 @@ protected:
 	// Skip count samples. Count will always be even.
 	virtual blargg_err_t skip_( int count );
 
+    // Save current state of file to specified writer.
+    virtual blargg_err_t save_( gme_writer_t, void* ) const { return "Not supported by this format"; }
 
+    // Set track info
+    virtual blargg_err_t set_track_info_( const track_info_t*, int ) { return "Not supported by this format"; }
+    
 // Implementation
 public:
 	gme_t();
@@ -187,6 +196,10 @@ private:
 	double gain_;
 	int sample_rate_;
 	int current_track_;
+    
+    bool fade_set;
+    int length_msec;
+    int fade_msec;
 	
 	void clear_track_vars();
 	int msec_to_samples( int msec ) const;
@@ -217,6 +230,21 @@ struct Gme_Info_ : Music_Emu
 inline blargg_err_t Music_Emu::track_info( track_info_t* out ) const
 {
 	return track_info( out, current_track_ );
+}
+
+inline blargg_err_t Music_Emu::save(gme_writer_t writer, void *your_data) const
+{
+    return save_( writer, your_data );
+}
+
+inline blargg_err_t Music_Emu::set_track_info(const track_info_t *in)
+{
+    return set_track_info_( in, current_track_ );
+}
+
+inline blargg_err_t Music_Emu::set_track_info(const track_info_t *in, int track)
+{
+    return set_track_info_( in, track );
 }
 
 inline int Music_Emu::sample_rate() const           { return sample_rate_; }

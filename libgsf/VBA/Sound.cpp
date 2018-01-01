@@ -889,7 +889,7 @@ void soundDirectSoundA()
 {
 #ifndef NO_INTERPOLATION
   if (soundInterpolation) directBuffer[0][soundIndex] = interp_pop(0, calc_rate(soundDSATimer)); //soundDSAValue;
-  else directBuffer[0][soundIndex] = soundDSAValue;
+  else directBuffer[0][soundIndex] = soundDSAValue<<8;
 #else
   soundBuffer[4][soundIndex] = soundDSAValue;
 #endif
@@ -924,7 +924,7 @@ void soundDirectSoundB()
 {
 #ifndef NO_INTERPOLATION
   if (soundInterpolation) directBuffer[1][soundIndex] = interp_pop(1, calc_rate(soundDSBTimer)); //soundDSBValue;
-  else directBuffer[1][soundIndex] = soundDSBValue;
+  else directBuffer[1][soundIndex] = soundDSBValue<<8;
 
 #else
   soundBuffer[5][soundIndex] = soundDSBValue;
@@ -1357,7 +1357,7 @@ void soundMix()
 }
 #endif
 
-extern "C" void DisplayError (char * Message, ...);
+extern "C" void gsfDisplayError (char * Message, ...);
 
 //int began_seek = 1;
 
@@ -1502,7 +1502,7 @@ void soundTick()
 				{
 					silencedetected++;
 				//	if((silencedetected%0x100)==81)
-				//	DisplayError("Silence Detected count = %d",silencedetected);
+				//	gsfDisplayError("Silence Detected count = %d",silencedetected);
 				}
 				else
 					silencedetected=0;
@@ -1518,7 +1518,7 @@ void soundTick()
 				//if((silencedetected>0)&&((decode_pos_ms - (mod.outMod->GetWrittenTime()-mod.outMod->GetOutputTime())-prevtime) > (silencelength*1000)))
 				if((silencedetected>0)&&((playtime-prevtime) > ((silencelength*1000)+buffertime)))
 				{
-				//	DisplayError("%d %d %d", silencedetected,silencelength*2*sndSamplesPerSec,sndSamplesPerSec);
+				//	gsfDisplayError("%d %d %d", silencedetected,silencelength*2*sndSamplesPerSec,sndSamplesPerSec);
 					outputtimeread=0;
 					silencedetected=0;
 					end_of_track();
@@ -1545,7 +1545,7 @@ void soundTick()
 					soundFinalWave[soundBufferIndex-2] = 0;
 					soundFinalWave[soundBufferIndex-1] = 0;
 					outputtimeread=0;
-					//DisplayError("playtime=%d, tracklength=%d, decode_pos_ms=%d\nGetOutputTime()=%d, GetWrittenTime=%d",(int)playtime,(int)TrackLength, (int)decode_pos_ms,mod.outMod->GetOutputTime(),mod.outMod->GetWrittenTime());
+					//gsfDisplayError("playtime=%d, tracklength=%d, decode_pos_ms=%d\nGetOutputTime()=%d, GetWrittenTime=%d",(int)playtime,(int)TrackLength, (int)decode_pos_ms,mod.outMod->GetOutputTime(),mod.outMod->GetWrittenTime());
 					end_of_track();
 				}
 			}

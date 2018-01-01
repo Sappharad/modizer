@@ -491,7 +491,7 @@ int SPUasync(u32 cycles)
  return(1);
 }
 
-extern void spu_update(unsigned char* pSound,long lBytes);
+void spu_update(unsigned char* pSound,long lBytes);
 
 void SPU_flushboot(void)
 {

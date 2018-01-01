@@ -28,6 +28,10 @@
 "Browser_Web_MainKey"="Web";
 "Browser_Web_SubKey"="Naviguer et télécharger des fichiers.";
 
+"Browser_WebVGM_MainKey"="VGMRips";
+"Browser_WebVGM_SubKey"="Video game music rips";
+
+
 "Browser_WorldCharts_MainKey"="Classements mondial";
 "Browser_WorldCharts_SubKey"="Top listes & liens.";
 
@@ -107,6 +111,7 @@
 
 "Yes"="Oui";
 "No"="Non";
+"Error"="Erreur";
 "Warning"="Attention";
 "Close"="Fermer";
 "First launch or issue encountered last time Modizer was running. Apply default settings ?"="Premier lancement ou problème lors du dernier. Appliquer les réglages par défaut ?";
@@ -115,6 +120,8 @@
 "Seeking"="Recherche";
 "Too much entries! Playlist will be limited to %d first entries."="Trop d'entrées! La liste est limitée à %d entrées.";
 "Size: %dKB"="Taille: %dKB";
+
+"URL have to start with ftp:// or http://"="L'URL doit commencer par ftp:// ou http://";
 
 "Settings_General"="General";
 "Settings_Player"="Lecteur";
@@ -180,6 +187,9 @@
 "Default length %d:%.2d"="Durée par défaut %d:%.2d";
 
 "Issue %d while trying to delete entry.\n%@"="Erreur %d lors de la tentative de suppression.\n%@";
+"Issue %d while trying to renamefile.\n%@"="Erreur %d lors de la tentative de renommage.\n%@";
+"Issue %d while moving: %@.\n%@"="Erreur %d lors de la tentative de déplacement: %@.\n%@";
+"Issue %d while creating folder\n%@"="Erreur %d lors de la tentative de création du dossier\n%@";
 
 "Filter"="Filtre";
 
@@ -196,6 +206,9 @@
 "Add/Remove files..."="Ajouter/Supprimer fichiers...";
 "Add or remove entries from browser."="Ajouter ou supprimer des entrées.";
 "More actions..."="Plus d'actions...";
+
+
+
 
 "Rename"="Renommer";
 "Edit"="Editer";
@@ -220,3 +233,15 @@
 "Download queue: 1 file"="File de téléchargement: 1 fichier";
 "Download queue: %d files"="File de téléchargement: %d fichiers";
 "General Settings"="Réglages généraux";
+
+"Choose a subsong"="Liste des subsongs";
+"Choose a song"="Liste des morceaux";
+
+"Rename" = "Renommer";
+"Delete" = "Effacer";
+"Cut" = "Couper";
+"Paste" = "Coller";
+"New folder" = "Nv.dossier";
+
+"Nothing to paste"="Rien à coller";
+"Enter folder name"="Entrez le nom du dossier";

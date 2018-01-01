@@ -13,8 +13,21 @@
 #import <AudioToolbox/AudioToolbox.h>
 
 #import "AppDelegate_Phone.h"
+
+//libopenmpt
+#import "../../libopenmpt/openmpt-trunk/libopenmpt/libopenmpt.h"
+#import "../../libopenmpt/openmpt-trunk/libopenmpt/libopenmpt_stream_callbacks_file.h"
+#import "../../libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 //MODPLUG
-#import "modplug.h"
+//#import "modplug.h"
+
+
+//XSF
+#import "XSFPlayer.h"
+#import "XSFPlayer_NCSF.h"
+#import "XSFPlayer_2SF.h"
+#import "XSFConfig.h"
+
 
 //GME
 #import "gme.h"
@@ -34,6 +47,7 @@
 #import "api68.h"
 
 extern "C" {
+    
 	//AOSDK
 #import "ao.h"
 #import "eng_protos.h"
@@ -44,13 +58,71 @@ extern "C" {
 // PMD
 #import "pmdmini.h"
 #import "pmdwinimport.h"
+
+//VGM
+#import "../../vgmplay/vgm/chips/mamedef.h"
+#import "../../vgmplay/vgm/VGMFile.h"
+#import "../../vgmplay/vgm/VGMPlay_Intf.h"
+    
+    
 }
+
+enum MMP_PLAYER_TYPE {
+    MMP_NONE=0,
+    MMP_PMDMINI,
+    MMP_ADPLUG,
+    MMP_SIDPLAY,
+    MMP_XMP,
+    MMP_OPENMPT,
+    MMP_DUMB,
+    MMP_UADE,
+    MMP_TIMIDITY,
+    MMP_VGMSTREAM,
+    MMP_LAZYUSF,
+    MMP_VGMPLAY,
+    MMP_GME,
+    MMP_ASAP,
+    MMP_GSF,
+    MMP_MDXPDX,
+    MMP_SC68,
+    MMP_STSOUND,
+    MMP_HVL,
+    MMP_SEXYPSF,
+    MMP_AOSDK,
+    MMP_XSF
+};
+
+static const char *mmp_player_name[]={
+    "none",
+    "pmdmini",
+    "adplug",
+    "sidplay",
+    "openmpt",
+    "dumb",
+    "uade",
+    "timidity",
+    "vgmstream",
+    "lazyusf",
+    "vgmplay",
+    "gme",
+    "asap",
+    "gsf",
+    "mdxpdx",
+    "sc68",
+    "stsound",
+    "hvl",
+    "sexypsf",
+    "aosdk",
+    "xsf",
+    "2sf"
+};
+
 
 @interface ModizMusicPlayer : NSObject {
 	//General infos
 	int mod_subsongs;
 	int mod_currentsub,mod_minsub,mod_maxsub;
-	int mPlayType; //1:GME, 2:libmodplug, 3:Adplug, 4:AO, 5:SexyPSF, 6:UADE, 7:HVL
+	unsigned int mPlayType;
 	int mp_datasize,numChannels;
 	int mLoopMode; //0:off, 1:infinite
 
@@ -68,10 +140,18 @@ extern "C" {
 	struct hvl_tune *hvl_song;
 	//UADE
 	int mUADE_OptChange;
-	int mUADE_OptLED,mUADE_OptNORM,mUADE_OptPOSTFX,mUADE_OptPAN,mUADE_OptHEAD,mUADE_OptGAIN;
+	int mUADE_OptLED,mUADE_OptNORM,mUADE_OptPOSTFX,mUADE_OptPAN,mUADE_OptHEAD,mUADE_OptGAIN,mUADE_OptNTSC;
 	float mUADE_OptGAINValue,mUADE_OptPANValue;
 	//GME
 	int optGMEFadeOut;
+    int optGMEIgnoreSilence;
+    float optGMERatio;
+    bool optGMEEnableRatio;
+    //GSF
+    char optGSFsoundLowPass;
+    char optGSFsoundEcho;
+    char optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
+    char optGSFsoundInterpolation;
 	//Modplug
 	ModPlug_Settings mp_settings;
     int mPatternDataAvail;
@@ -86,6 +166,7 @@ extern "C" {
 	
 	//Adplug stuff
 	CPlayer	*adPlugPlayer;
+    CAdPlugDatabase *adplugDB;
 	CEmuopl *opl;
 	int opl_towrite;
 	//
@@ -96,6 +177,9 @@ extern "C" {
 	unsigned char *ao_buffer;
 	ao_display_info ao_info;
 	//
+    //VGMPLAY stuff
+    unsigned int optVGMPLAY_maxloop;
+    //
 	//Modplug stuff
 	
 	ModPlugFile *mp_file;
@@ -110,10 +194,11 @@ extern "C" {
 };
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @property int optForceMono;
-@property int mPlayType; //1:GME, 2:libmodplug, 3:Adplug
+@property unsigned int mPlayType;
 @property int mp_datasize,mPatternDataAvail;
 //Adplug stuff
 @property CPlayer	*adPlugPlayer;
+@property CAdPlugDatabase *adplugDB;
 @property CEmuopl *opl;
 @property int opl_towrite,mADPLUGopltype;
 //GME stuff
@@ -123,6 +208,8 @@ extern "C" {
 //AO stuff
 @property unsigned char *ao_buffer;
 @property ao_display_info ao_info;
+//VGMPLAY
+@property unsigned int optVGMPLAY_maxloop;
 //Modplug stuff
 @property ModPlug_Settings mp_settings;
 @property ModPlugFile *mp_file;
@@ -131,6 +218,11 @@ extern "C" {
 @property unsigned char *genVolData,*playVolData;
 @property float mVolume;
 @property int numChannels,numPatterns,numSamples,numInstr;
+//GSF stuff
+@property char optGSFsoundLowPass;
+@property char optGSFsoundEcho;
+@property char optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
+@property char optGSFsoundInterpolation;
 //Player status
 @property int bGlobalAudioPause;
 //for spectrum analyzer
@@ -176,7 +268,7 @@ extern "C" {
 -(void) Play;
 -(void) PlaySeek:(int)startPos subsong:(int)subsong;
 -(int) isAcceptedFile:(NSString*)_filePath;
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode;
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode;
 
 -(float) getIphoneVolume;
 -(void) setIphoneVolume:(float) vol;
@@ -197,10 +289,17 @@ extern "C" {
 -(void) optUADE_Pan:(int)isOn;
 -(void) optUADE_PanValue:(float_t)val;
 -(void) optUADE_Head:(int)isOn;
+-(void) optUADE_NTSC:(int)isOn;
 -(void) optUADE_Gain:(int)isOn;
 -(void) optUADE_PanValue:(float_t)val;
 -(void) optUADE_GainValue:(float_t)val;
+
+
+
+-(void) optVGMPLAY_MaxLoop:(unsigned int)val;
+
 -(void) optGEN_DefaultLength:(float_t)val;
+
 -(void) optTIM_Poly:(int)val;
 -(void) optTIM_Reverb:(int)val;
 -(void) optTIM_Chorus:(int)val;
@@ -226,9 +325,20 @@ extern "C" {
 -(void) optGLOB_Panning:(int)onoff;
 -(void) optGLOB_PanningValue:(float)value;
 
+
+-(void) optVGMSTREAM_MaxLoop:(double)val;
+-(void) optVGMSTREAM_ForceLoop:(unsigned int)val;
+-(void) optVGMSTREAM_ResampleQuality:(unsigned int)val;
+
+-(void) optLAZYUSF_ResampleQuality:(unsigned int)val;
+
 -(void) optGME_Fade:(int)fade;
+-(void) optGME_IgnoreSilence:(int)ignoreSilence;
+-(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled;
 -(void) optGME_EQ:(double)treble bass:(double)bass;
 -(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo;
+
+-(void) optGSF_UpdateParam;
 
 -(void) setLoopInf:(int)val;
 
@@ -242,9 +352,35 @@ extern "C" {
 -(NSString*) getSubTitle:(int)subsong;
 
 -(int) getSongLength;
+-(int) getGlobalLength;
 -(int) getCurrentTime;
 -(int) shouldUpdateInfos;
 -(void) setInfosUpdated;
 -(int) getChannelVolume:(int)channel;
+
+//loaders
+-(int) mmp_gsfLoad:(NSString*)filePath;
+-(int) mmp_mdxpdxLoad:(NSString*)filePath;
+-(int) mmp_sc68Load:(NSString*)filePath;
+-(int) mmp_stsoundLoad:(NSString*)filePath;
+-(int) mmp_sidplayLoad:(NSString*)filePath;
+-(int) mmp_hvlLoad:(NSString*)filePath;
+-(int) mmp_uadeLoad:(NSString*)filePath;
+-(int) mmp_sexypsfLoad:(NSString*)filePath;
+-(int) mmp_aosdkLoad:(NSString*)filePath;
+-(int) mmp_openmptLoad:(NSString*)filePath;
+-(int) mmp_timidityLoad:(NSString*)filePath;
+-(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension;
+-(int) mmp_lazyusfLoad:(NSString*)filePath;
+-(int) mmp_xsfLoad:(NSString*)filePath;
+-(int) mmp_vgmplayLoad:(NSString*)filePath;
+-(int) mmp_pmdminiLoad:(NSString*)filePath;
+-(int) mmp_dumbLoad:(NSString*)filePath;
+-(int) mmp_asapLoad:(NSString*)filePath;
+-(int) mmp_adplugLoad:(NSString*)filePath;
+-(int) mmp_gmeLoad:(NSString*)filePath;
+-(int) mmp_2sfLoad:(NSString*)filePath;
+
+
 
 @end

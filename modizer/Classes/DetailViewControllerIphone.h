@@ -50,18 +50,15 @@ struct Resources;
 class CFont;
 class CGLString;
 
-@interface DetailViewControllerIphone : UIViewController <UIPickerViewDataSource, UIPickerViewDelegate,  UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate > { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
+@interface DetailViewControllerIphone : UIViewController <UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
-    
     
     //EQ
     EQViewController *eqVC;
     
-    
     //Options
 	IBOutlet UISegmentedControl *sc_allowPopup;
 	///////////////////////
-    
     
     //CoverFlow
     TKCoverflowView *coverflow; 
@@ -74,12 +71,13 @@ class CGLString;
 	ModizMusicPlayer *mplayer;
 	
 	NSString *ratingImg[6];
-	
+    
+    int mOnlyCurrentEntry;
+    int mOnlyCurrentSubEntry;
 
 	int oglViewFullscreen,oglViewFullscreenChanged;
 	int orientationHV;
-	IBOutlet UIPickerView *pvSubSongSel,*pvArcSel;
-	IBOutlet OGLView* m_oglView;
+    IBOutlet OGLView* m_oglView;
 	EAGLContext* m_oglContext;
 	st::HardwareClock m_clock;
 	CADisplayLink* m_displayLink;
@@ -87,14 +85,11 @@ class CGLString;
 	UIView *mInWasView;
 	BOOL mInWasViewHidden;
 
-
 	IBOutlet RRSGlowLabel *labelModuleName;
 
     //Subsongs and Archive entries picker
-	IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
-	IBOutlet UIButton *pvSubSongValidate,*pvArcValidate,*btnChangeTime;
+	IBOutlet UIButton *btnChangeTime;
     IBOutlet BButton *btnShowArcList,*btnShowSubSong;
-
 	
 	IBOutlet UILabel *labelTime,*labelModuleLength;
 	IBOutlet UILabel *labelSeeking;
@@ -103,7 +98,9 @@ class CGLString;
 	IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
     IBOutlet BButton *infoButton,*eqButton;
 	IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
-	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;	
+	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
+    IBOutlet UIBarButtonItem *playBarRewind,*playBarFFwd;
+    IBOutlet UIBarButtonItem *pauseBarRewind,*pauseBarFFwd;
     
     IBOutlet OBSlider *sliderProgressModule;
     
@@ -111,18 +108,13 @@ class CGLString;
 	IBOutlet UIView *infoMsgView;
 	IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
 	IBOutlet UIView *detailView,*commandViewU,*mainView,*infoView;
-    
-    
 	
 	IBOutlet UIButton *oglButton;
 
 	IBOutlet UIView *volWin;
     
-    IBOutlet UIImageView *cover_view;
+    IBOutlet UIImageView *cover_view,*cover_viewBG;
     UIImageView *gifAnimation;
-
-	
-    
     
 	int sliderProgressModuleEdit;
 	int sliderProgressModuleChanged;
@@ -149,7 +141,6 @@ class CGLString;
 	
 	t_plPlaylist_entry *mPlaylist;
 	int	mPlaylist_pos,mPlaylist_size;
-	
 	
 	BOOL mShuffle;
     int mShouldUpdateInfos;
@@ -264,8 +255,6 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet BButton *infoButton;
 @property (nonatomic, retain) IBOutlet UIButton *oglButton;
 
-@property (nonatomic, retain) IBOutlet UIPickerView *pvSubSongSel,*pvArcSel;
-
 @property (nonatomic, retain) NSTimer *repeatingTimer;
 
 @property (nonatomic, retain) IBOutlet UIView *detailView,*commandViewU,*volWin;
@@ -275,31 +264,33 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelSeeking;
 @property (nonatomic, retain) IBOutlet UILabel *labelModuleSize;
-@property (nonatomic, retain) IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
-@property (nonatomic, retain) IBOutlet UIButton *pvSubSongValidate,*pvArcValidate;
 @property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *playBarRewind,*playBarFFwd,*pauseBarRewind,*pauseBarFFwd;
 @property (nonatomic, retain) IBOutlet OBSlider *sliderProgressModule;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
 
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
 
 
-@property (nonatomic, retain) IBOutlet UIImageView *cover_view;
+@property (nonatomic, retain) IBOutlet UIImageView *cover_view,*cover_viewBG;
 @property (nonatomic, retain) UIImageView *gifAnimation;
+
+@property int mOnlyCurrentEntry;
+@property int mOnlyCurrentSubEntry;
 
 -(IBAction) changeTimeDisplay;
 
--(IBAction)showSubSongSelector;
+-(IBAction)showSubSongSelector:(id)sender;
 -(IBAction)playSelectedSubSong;
--(IBAction)showArcSelector;
+-(IBAction)showArcSelector:(id)sender;
 -(IBAction)playSelectedArc;
 
 
 - (void)titleTap:(UITapGestureRecognizer *)sender;
 
--(void) pushedRatingCommon:(short int)playcount;
+-(void) pushedRatingCommon:(signed char)rating;
 -(void) hidePopup;
 -(void) openPopup:(NSString *)msg secmsg:(NSString *)secmsg;
 -(void) closePopup;
@@ -307,7 +298,6 @@ class CGLString;
 
 -(NSString*) getCurrentModuleFilepath;
 
-- (void) checkAvailableCovers;
 - (void) checkAvailableCovers:(int)index;
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;

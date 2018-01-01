@@ -38,9 +38,16 @@ volatile t_settings settings[MAX_SETTINGS];
 
 #pragma mark - Callback methods
 
+//FTP
 void optFTPSwitchChanged(id param) {
     [param FTPswitchChanged];
 }
+
+//ONLINE
+void optONLINESwitchChanged(id param) {
+    [SettingsGenViewController ONLINEswitchChanged];
+}
+
 
 //GLOBAL
 -(void) optGLOBALChanged {
@@ -119,6 +126,35 @@ void optTIMIDITYChangedC(id param) {
 void optUADEChangedC(id param) {
     [param optUADEChanged];
 }
+//VGMPLAY
+-(void) optVGMPLAYChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_VGMPLAY];
+}
+void optVGMPLAYChangedC(id param) {
+    [param optVGMPLAYChanged];
+}
+//VGMSTREAM
+-(void) optVGMSTREAMChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_VGMSTREAM];
+}
+void optVGMSTREAMChangedC(id param) {
+    [param optVGMSTREAMChanged];
+}
+
+//LAZYUSF
+-(void) optLAZYUSFChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_LAZYUSF];
+}
+void optLAZYUSFChangedC(id param) {
+    [param optLAZYUSFChanged];
+}
+//GSF
+-(void) optGSFChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_GSF];
+}
+void optGSFChangedC(id param) {
+    [param optGSFChanged];
+}
 
 #pragma mark - Load/Init default settings
 
@@ -150,6 +186,10 @@ void optUADEChangedC(id param) {
                     valNb=[prefs objectForKey:str];
                     if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
                     break;
+                case MDZ_SLIDER_DISCRETE_TIME:
+                    valNb=[prefs objectForKey:str];
+                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
+                    break;
                 case MDZ_SLIDER_CONTINUOUS:
                     valNb=[prefs objectForKey:str];
                     if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
@@ -169,6 +209,7 @@ void optUADEChangedC(id param) {
                     break;
             }
         }
+    [SettingsGenViewController ONLINEswitchChanged];
 }
 
 + (void) backupSettings {
@@ -199,6 +240,10 @@ void optUADEChangedC(id param) {
                     valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
                     [prefs setObject:valNb forKey:str];[valNb autorelease];
                     break;
+                case MDZ_SLIDER_DISCRETE_TIME:
+                    valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
+                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    break;
                 case MDZ_SLIDER_CONTINUOUS:
                     valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
                     [prefs setObject:valNb forKey:str];[valNb autorelease];
@@ -226,13 +271,15 @@ void optUADEChangedC(id param) {
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
@@ -256,6 +303,34 @@ void optUADEChangedC(id param) {
     strcpy(settings[FTP_PORT].detail.mdz_textbox.text,"21");
     
     /////////////////////////////////////
+    //GLOBAL ONLINE
+    /////////////////////////////////////
+    if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+    settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(MODLAND_HOST_DEFAULT)+1);
+    strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,MODLAND_HOST_DEFAULT);
+    
+    if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+    settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(HVSC_HOST_DEFAULT)+1);
+    strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,HVSC_HOST_DEFAULT);
+    
+    if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+    settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(ASMA_HOST_DEFAULT)+1);
+    strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,ASMA_HOST_DEFAULT);
+    
+    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value=0;
+    settings[ONLINE_HVSC_URL].detail.mdz_boolswitch.switch_value=0;
+    settings[ONLINE_ASMA_URL].detail.mdz_boolswitch.switch_value=0;
+    
+    if (settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_textbox.text) free(settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_textbox.text);
+    settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_textbox.text=NULL;
+    
+    if (settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.text) free(settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.text);
+    settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.text=NULL;
+    
+    if (settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.text) free(settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.text);
+    settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.text=NULL;
+    
+    /////////////////////////////////////
     //Visualizers
     /////////////////////////////////////
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
@@ -267,7 +342,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
-    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
     settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
@@ -276,6 +351,8 @@ void optUADEChangedC(id param) {
     
     if (mSlowDevice) settings[GLOB_FXLOD].detail.mdz_switch.switch_value=1;
     else settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
+    
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=0;
     
     settings[GLOB_FXMSAA].detail.mdz_switch.switch_value=0;
     
@@ -288,7 +365,7 @@ void optUADEChangedC(id param) {
     /////////////////////////////////////
     settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value=0.5;
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=2;
-    settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value=0;
+/*    settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value=0;
     settings[MODPLUG_BassAmount].detail.mdz_slider.slider_value=0.7;
     settings[MODPLUG_BassRange].detail.mdz_slider.slider_value=0.3;
     settings[MODPLUG_Surround].detail.mdz_boolswitch.switch_value=0;
@@ -296,7 +373,7 @@ void optUADEChangedC(id param) {
     settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_value=0.8;
     settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value=0;
     settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_value=0.8;
-    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value=0.7;
+    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value=0.7;*/
     settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value=0.5;
     
     /////////////////////////////////////
@@ -319,12 +396,23 @@ void optUADEChangedC(id param) {
     //GME
     /////////////////////////////////////
     settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
+    settings[GME_RATIO].detail.mdz_slider.slider_value=1;
+    settings[GME_RATIO_ONOFF].detail.mdz_slider.slider_value=1;
+    settings[GME_IGNORESILENCE].detail.mdz_slider.slider_value=0;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value=-14;
     settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value=0;
     settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value=0;
     settings[GME_FX_PANNING].detail.mdz_slider.slider_value=0;
+    
+    /////////////////////////////////////
+    //GSF
+    /////////////////////////////////////
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value=2;
+    settings[GSF_INTERPOLATION].detail.mdz_boolswitch.switch_value=1;
+    settings[GSF_LOWPASSFILTER].detail.mdz_boolswitch.switch_value=1;
+    settings[GSF_ECHO].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
     //SID
@@ -346,7 +434,7 @@ void optUADEChangedC(id param) {
     settings[UADE_GainValue].detail.mdz_slider.slider_value=0.5;
     settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
     settings[UADE_PanValue].detail.mdz_slider.slider_value=0.7;
-    
+    settings[UADE_NTSC].detail.mdz_boolswitch.switch_value=0;
     /////////////////////////////////////
     //SEXYPSF
     /////////////////////////////////////
@@ -368,6 +456,24 @@ void optUADEChangedC(id param) {
     //ADPLUG
     /////////////////////////////////////
     settings[ADPLUG_OplType].detail.mdz_switch.switch_value=0;
+    
+    /////////////////////////////////////
+    //VGMPLAY
+    /////////////////////////////////////
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
+    
+    /////////////////////////////////////
+    //VGMSTREAM
+    /////////////////////////////////////
+    settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_slider.slider_value=1;
+    
+    /////////////////////////////////////
+    //LAZYUSF
+    /////////////////////////////////////
+    settings[LAZYUSF_ResampleQuality].detail.mdz_slider.slider_value=1;
+    
     
 }
 
@@ -399,6 +505,12 @@ void optUADEChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].family=MDZ_SETTINGS_FAMILY_ROOT;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
+    
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE].label=(char*)"Online";
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE].family=MDZ_SETTINGS_FAMILY_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     
     
     
@@ -437,23 +549,48 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultLength].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultLength].sub_family=0;
     settings[GLOB_DefaultLength].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
-    settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=1200;
+    settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=600;
     
     settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultMODPlayer].label=(char*)"Default mod player";
+    settings[GLOB_DefaultMODPlayer].label=(char*)"Default MOD player";
     settings[GLOB_DefaultMODPlayer].description=NULL;
     settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MDPLG";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"DUMB";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"UADE";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[3]=(char*)"XMP";
+    
+    settings[GLOB_DefaultSAPPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultSAPPlayer].label=(char*)"Default SAP player";
+    settings[GLOB_DefaultSAPPlayer].description=NULL;
+    settings[GLOB_DefaultSAPPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_DefaultSAPPlayer].sub_family=0;
+    settings[GLOB_DefaultSAPPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[0]=(char*)"ASAP";
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    settings[GLOB_DefaultVGMPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultVGMPlayer].label=(char*)"Default VGM player";
+    settings[GLOB_DefaultVGMPlayer].description=NULL;
+    settings[GLOB_DefaultVGMPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_DefaultVGMPlayer].sub_family=0;
+    settings[GLOB_DefaultVGMPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"VGM";
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
     
     settings[GLOB_TitleFilename].label=(char*)"Filename as title";
     settings[GLOB_TitleFilename].description=NULL;
@@ -529,7 +666,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_CoverFlow].sub_family=0;
     settings[GLOB_CoverFlow].callback=&optGLOBALChangedC;
     settings[GLOB_CoverFlow].type=MDZ_BOOLSWITCH;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_PlayerViewOnPlay].label=(char*)"Player view on play";
     settings[GLOB_PlayerViewOnPlay].description=NULL;
@@ -591,6 +728,99 @@ void optUADEChangedC(id param) {
     settings[FTP_PORT].type=MDZ_TEXTBOX;
     settings[FTP_PORT].detail.mdz_textbox.text=(char*)malloc(strlen("21")+1);
     strcpy(settings[FTP_PORT].detail.mdz_textbox.text,"21");
+    
+    /////////////////////////////////////
+    //GLOBAL ONLINE
+    /////////////////////////////////////
+    settings[ONLINE_MODLAND_CURRENT_URL].label=(char*)"MODLAND URL";
+    settings[ONLINE_MODLAND_CURRENT_URL].description=NULL;
+    settings[ONLINE_MODLAND_CURRENT_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_MODLAND_CURRENT_URL].sub_family=0;
+    settings[ONLINE_MODLAND_CURRENT_URL].type=MDZ_MSGBOX;
+    settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen("N/A")+1);
+    strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,"N/A");
+    
+    settings[ONLINE_HVSC_CURRENT_URL].label=(char*)"HVSC URL";
+    settings[ONLINE_HVSC_CURRENT_URL].description=NULL;
+    settings[ONLINE_HVSC_CURRENT_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_HVSC_CURRENT_URL].sub_family=0;
+    settings[ONLINE_HVSC_CURRENT_URL].type=MDZ_MSGBOX;
+    settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen("N/A")+1);
+    strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,"N/A");
+    
+    settings[ONLINE_ASMA_CURRENT_URL].label=(char*)"ASMA URL";
+    settings[ONLINE_ASMA_CURRENT_URL].description=NULL;
+    settings[ONLINE_ASMA_CURRENT_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_ASMA_CURRENT_URL].sub_family=0;
+    settings[ONLINE_ASMA_CURRENT_URL].type=MDZ_MSGBOX;
+    settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen("N/A")+1);
+    strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,"N/A");
+    
+    settings[ONLINE_MODLAND_URL].type=MDZ_SWITCH;
+    settings[ONLINE_MODLAND_URL].label=(char*)"MODLAND Server";
+    settings[ONLINE_MODLAND_URL].description=NULL;
+    settings[ONLINE_MODLAND_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_MODLAND_URL].callback=&optONLINESwitchChanged;
+    settings[ONLINE_MODLAND_URL].sub_family=0;
+    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value=0;
+    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value_nb=4;
+    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels=(char**)malloc(settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[0]=(char*)"Default";
+    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[1]=(char*)"Alt1";
+    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
+    settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
+    
+    settings[ONLINE_MODLAND_URL_CUSTOM].label=(char*)"Custom URL";
+    settings[ONLINE_MODLAND_URL_CUSTOM].description=NULL;
+    settings[ONLINE_MODLAND_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_MODLAND_URL_CUSTOM].callback=&optONLINESwitchChanged;
+    settings[ONLINE_MODLAND_URL_CUSTOM].sub_family=0;
+    settings[ONLINE_MODLAND_URL_CUSTOM].type=MDZ_TEXTBOX;
+    settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_textbox.text=NULL;
+    
+    settings[ONLINE_HVSC_URL].type=MDZ_SWITCH;
+    settings[ONLINE_HVSC_URL].label=(char*)"HVSC Server";
+    settings[ONLINE_HVSC_URL].description=NULL;
+    settings[ONLINE_HVSC_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_HVSC_URL].callback=&optONLINESwitchChanged;
+    settings[ONLINE_HVSC_URL].sub_family=0;
+    settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_value=0;
+    settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_value_nb=4;
+    settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels=(char**)malloc(settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[0]=(char*)"Default";
+    settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[1]=(char*)"Alt1";
+    settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
+    settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
+    
+    settings[ONLINE_HVSC_URL_CUSTOM].label=(char*)"Custom URL";
+    settings[ONLINE_HVSC_URL_CUSTOM].description=NULL;
+    settings[ONLINE_HVSC_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_HVSC_URL_CUSTOM].sub_family=0;
+    settings[ONLINE_HVSC_URL_CUSTOM].type=MDZ_TEXTBOX;
+    settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.text=NULL;
+    
+    settings[ONLINE_ASMA_URL].type=MDZ_SWITCH;
+    settings[ONLINE_ASMA_URL].label=(char*)"ASMA Server";
+    settings[ONLINE_ASMA_URL].description=NULL;
+    settings[ONLINE_ASMA_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_ASMA_URL].callback=&optONLINESwitchChanged;
+    settings[ONLINE_ASMA_URL].sub_family=0;
+    settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value=0;
+    settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value_nb=4;
+    settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels=(char**)malloc(settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[0]=(char*)"Default";
+    settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[1]=(char*)"Alt1";
+    settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
+    settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
+    
+    settings[ONLINE_ASMA_URL_CUSTOM].label=(char*)"Custom URL";
+    settings[ONLINE_ASMA_URL_CUSTOM].description=NULL;
+    settings[ONLINE_ASMA_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_ASMA_URL_CUSTOM].sub_family=0;
+    settings[ONLINE_ASMA_URL_CUSTOM].type=MDZ_TEXTBOX;
+    settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.text=NULL;
+    
+    [SettingsGenViewController ONLINEswitchChanged];
     
     /////////////////////////////////////
     //Visualizers
@@ -776,7 +1006,18 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMSAA].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMSAA].sub_family=0;
     settings[GLOB_FXMSAA].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GLOB_FXFPS].type=MDZ_SWITCH;
+    settings[GLOB_FXFPS].label=(char*)"FX FPS";
+    settings[GLOB_FXFPS].description=NULL;
+    settings[GLOB_FXFPS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXFPS].sub_family=0;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[0]=(char*)"30";
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[1]=(char*)"60";
     
     
     /////////////////////////////////////
@@ -787,7 +1028,7 @@ void optUADEChangedC(id param) {
     //MODPLUG
     /////////////////////////////////////
     settings[MDZ_SETTINGS_FAMILY_MODPLUG].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_MODPLUG].label=(char*)"Modplug";
+    settings[MDZ_SETTINGS_FAMILY_MODPLUG].label=(char*)"OpenMPT";
     settings[MDZ_SETTINGS_FAMILY_MODPLUG].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_MODPLUG].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_MODPLUG].sub_family=MDZ_SETTINGS_FAMILY_MODPLUG;
@@ -813,10 +1054,10 @@ void optUADEChangedC(id param) {
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[0]=(char*)"Near";
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[2]=(char*)"Spli";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[3]=(char*)"FIR";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[2]=(char*)"Cub";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[3]=(char*)"Win";
     
-    settings[MODPLUG_Megabass].type=MDZ_BOOLSWITCH;
+/*    settings[MODPLUG_Megabass].type=MDZ_BOOLSWITCH;
     settings[MODPLUG_Megabass].label=(char*)"Megabass";
     settings[MODPLUG_Megabass].description=NULL;
     settings[MODPLUG_Megabass].family=MDZ_SETTINGS_FAMILY_MODPLUG;
@@ -898,7 +1139,7 @@ void optUADEChangedC(id param) {
     settings[MODPLUG_ReverbDelay].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value=0.7;
     settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_min_value=0;
-    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_max_value=1;
+    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_max_value=1;*/
     
     settings[MODPLUG_StereoSeparation].label=(char*)"Panning";
     settings[MODPLUG_StereoSeparation].description=NULL;
@@ -963,6 +1204,32 @@ void optUADEChangedC(id param) {
     settings[GME_FADEOUT].detail.mdz_slider.slider_min_value=0;
     settings[GME_FADEOUT].detail.mdz_slider.slider_max_value=5;
     
+    settings[GME_RATIO_ONOFF].type=MDZ_BOOLSWITCH;
+    settings[GME_RATIO_ONOFF].label=(char*)"Enable Playback Ratio";
+    settings[GME_RATIO_ONOFF].description=NULL;
+    settings[GME_RATIO_ONOFF].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_RATIO_ONOFF].sub_family=0;
+    settings[GME_RATIO_ONOFF].callback=&optGMEChangedC;
+    settings[GME_RATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GME_IGNORESILENCE].type=MDZ_BOOLSWITCH;
+    settings[GME_IGNORESILENCE].label=(char*)"Ignore Silence";
+    settings[GME_IGNORESILENCE].description=NULL;
+    settings[GME_IGNORESILENCE].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_IGNORESILENCE].sub_family=0;
+    settings[GME_IGNORESILENCE].callback=&optGMEChangedC;
+    settings[GME_IGNORESILENCE].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GME_RATIO].label=(char*)"Playback Ratio";
+    settings[GME_RATIO].description=NULL;
+    settings[GME_RATIO].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_RATIO].sub_family=0;
+    settings[GME_RATIO].callback=&optGMEChangedC;
+    settings[GME_RATIO].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_RATIO].detail.mdz_slider.slider_value=1;
+    settings[GME_RATIO].detail.mdz_slider.slider_min_value=0.1;
+    settings[GME_RATIO].detail.mdz_slider.slider_max_value=5;
+    
     settings[GME_EQ_BASS].label=(char*)"Bass";
     settings[GME_EQ_BASS].description=NULL;
     settings[GME_EQ_BASS].family=MDZ_SETTINGS_FAMILY_GME;
@@ -1017,7 +1284,52 @@ void optUADEChangedC(id param) {
     settings[GME_FX_PANNING].detail.mdz_slider.slider_min_value=0;
     settings[GME_FX_PANNING].detail.mdz_slider.slider_max_value=1;
     
+    /////////////////////////////////////
+    //GSF
+    /////////////////////////////////////
     
+    settings[MDZ_SETTINGS_FAMILY_GSF].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GSF].label=(char*)"GSF";
+    settings[MDZ_SETTINGS_FAMILY_GSF].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GSF].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_GSF].sub_family=MDZ_SETTINGS_FAMILY_GSF;
+    
+    settings[GSF_SOUNDQUALITY].type=MDZ_SWITCH;
+    settings[GSF_SOUNDQUALITY].label=(char*)"Sound Quality";
+    settings[GSF_SOUNDQUALITY].description=NULL;
+    settings[GSF_SOUNDQUALITY].family=MDZ_SETTINGS_FAMILY_GSF;
+    settings[GSF_SOUNDQUALITY].sub_family=0;
+    settings[GSF_SOUNDQUALITY].callback=&optGSFChangedC;
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value=2;
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value_nb=3;
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels=(char**)malloc(settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[0]=(char*)"11Khz";
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[1]=(char*)"22Khz";
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[2]=(char*)"44Khz";
+    
+    settings[GSF_INTERPOLATION].type=MDZ_BOOLSWITCH;
+    settings[GSF_INTERPOLATION].label=(char*)"Interpolation";
+    settings[GSF_INTERPOLATION].description=NULL;
+    settings[GSF_INTERPOLATION].family=MDZ_SETTINGS_FAMILY_GSF;
+    settings[GSF_INTERPOLATION].sub_family=0;
+    settings[GSF_INTERPOLATION].callback=&optGSFChangedC;
+    settings[GSF_INTERPOLATION].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[GSF_LOWPASSFILTER].type=MDZ_BOOLSWITCH;
+    settings[GSF_LOWPASSFILTER].label=(char*)"Lowpass Filter";
+    settings[GSF_LOWPASSFILTER].description=NULL;
+    settings[GSF_LOWPASSFILTER].family=MDZ_SETTINGS_FAMILY_GSF;
+    settings[GSF_LOWPASSFILTER].sub_family=0;
+    settings[GSF_LOWPASSFILTER].callback=&optGSFChangedC;
+    settings[GSF_LOWPASSFILTER].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[GSF_ECHO].type=MDZ_BOOLSWITCH;
+    settings[GSF_ECHO].label=(char*)"Echo";
+    settings[GSF_ECHO].description=NULL;
+    settings[GSF_ECHO].family=MDZ_SETTINGS_FAMILY_GSF;
+    settings[GSF_ECHO].sub_family=0;
+    settings[GSF_ECHO].callback=&optGSFChangedC;
+    settings[GSF_ECHO].detail.mdz_boolswitch.switch_value=0;
     
     
     /////////////////////////////////////
@@ -1087,6 +1399,95 @@ void optUADEChangedC(id param) {
     settings[TIM_Resample].detail.mdz_switch.switch_labels[2]=(char*)"Spli";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[3]=(char*)"Gaus";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[4]=(char*)"Newt";
+    
+    /////////////////////////////////////
+    //VGMPLAY
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].label=(char*)"VGMPlay";
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].sub_family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    
+    
+    settings[VGMPLAY_Maxloop].label=(char*)"Max loop";
+    settings[VGMPLAY_Maxloop].description=NULL;
+    settings[VGMPLAY_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_Maxloop].sub_family=0;
+    settings[VGMPLAY_Maxloop].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_Maxloop].type=MDZ_SLIDER_DISCRETE;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=0;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
+    
+    /////////////////////////////////////
+    //VGMSTREAM
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].label=(char*)"VGMStream";
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].sub_family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    
+    settings[VGMSTREAM_Forceloop].type=MDZ_BOOLSWITCH;
+    settings[VGMSTREAM_Forceloop].label=(char*)"Force loop";
+    settings[VGMSTREAM_Forceloop].description=NULL;
+    settings[VGMSTREAM_Forceloop].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    settings[VGMSTREAM_Forceloop].sub_family=0;
+    settings[VGMSTREAM_Forceloop].callback=&optVGMSTREAMChangedC;
+    settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
+    
+    
+    settings[VGMSTREAM_Maxloop].label=(char*)"Max loop";
+    settings[VGMSTREAM_Maxloop].description=NULL;
+    settings[VGMSTREAM_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    settings[VGMSTREAM_Maxloop].sub_family=0;
+    settings[VGMSTREAM_Maxloop].callback=&optVGMSTREAMChangedC;
+    settings[VGMSTREAM_Maxloop].type=MDZ_SLIDER_DISCRETE;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=0;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=16;
+    
+    settings[VGMSTREAM_ResampleQuality].type=MDZ_SWITCH;
+    settings[VGMSTREAM_ResampleQuality].label=(char*)"Resampling";
+    settings[VGMSTREAM_ResampleQuality].description=NULL;
+    settings[VGMSTREAM_ResampleQuality].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    settings[VGMSTREAM_ResampleQuality].sub_family=0;
+    settings[VGMSTREAM_ResampleQuality].callback=&optVGMSTREAMChangedC;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value=1;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[0]=(char*)"Best";
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[1]=(char*)"Med.";
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[3]=(char*)"ZOH";
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[4]=(char*)"Lin.";
+    
+    
+    /////////////////////////////////////
+    //LAZYUSF
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].label=(char*)"LAZYUSF";
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].sub_family=MDZ_SETTINGS_FAMILY_LAZYUSF;
+
+    settings[LAZYUSF_ResampleQuality].type=MDZ_SWITCH;
+    settings[LAZYUSF_ResampleQuality].label=(char*)"Resampling";
+    settings[LAZYUSF_ResampleQuality].description=NULL;
+    settings[LAZYUSF_ResampleQuality].family=MDZ_SETTINGS_FAMILY_LAZYUSF;
+    settings[LAZYUSF_ResampleQuality].sub_family=0;
+    settings[LAZYUSF_ResampleQuality].callback=&optLAZYUSFChangedC;
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value=1;
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[0]=(char*)"Best";
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[1]=(char*)"Med.";
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[3]=(char*)"ZOH";
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[4]=(char*)"Lin.";
+    
     
     /////////////////////////////////////
     //GME
@@ -1239,6 +1640,14 @@ void optUADEChangedC(id param) {
     settings[UADE_PanValue].detail.mdz_slider.slider_min_value=0;
     settings[UADE_PanValue].detail.mdz_slider.slider_max_value=1;
     
+    settings[UADE_NTSC].type=MDZ_BOOLSWITCH;
+    settings[UADE_NTSC].label=(char*)"Force NTSC";
+    settings[UADE_NTSC].description=NULL;
+    settings[UADE_NTSC].family=MDZ_SETTINGS_FAMILY_UADE;
+    settings[UADE_NTSC].sub_family=0;
+    settings[UADE_NTSC].callback=&optUADEChangedC;
+    settings[UADE_NTSC].detail.mdz_boolswitch.switch_value=0;
+    
     /////////////////////////////////////
     //SEXYPSF
     /////////////////////////////////////
@@ -1315,8 +1724,8 @@ void optUADEChangedC(id param) {
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=1;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb=2;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[0]=(char*)"22Khz";
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[1]=(char*)"44Khz";
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[0]=(char*)"44Khz";
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[1]=(char*)"22Khz";
     
     settings[AOSDK_DSFDSP].type=MDZ_BOOLSWITCH;
     settings[AOSDK_DSFDSP].label=(char*)"DSF DSP";
@@ -1401,7 +1810,7 @@ void optUADEChangedC(id param) {
 {
     [super viewDidLoad];
     
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
@@ -1508,11 +1917,36 @@ void optUADEChangedC(id param) {
     if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text) {
         free(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text);
     }
+    settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text=NULL;
+    
     if ([textField.text length]) {
         settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text=(char*)malloc(strlen([textField.text UTF8String]+1));
         strcpy(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,[textField.text UTF8String]);
     }
+    
+    
+    switch (cur_settings_idx[textField.tag]) {
+        case ONLINE_MODLAND_URL_CUSTOM:
+            case ONLINE_HVSC_URL_CUSTOM:
+            case ONLINE_ASMA_URL_CUSTOM:
+            if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text) {
+                if (strncasecmp(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,"HTTP://",7)==0) break; //HTTP
+                if (strncasecmp(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,"FTP://",6)==0) break; //FTP
+                free(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text);
+                settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text=NULL;
+                textField.text=@"";
+                
+                UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"URL have to start with ftp:// or http://","") delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
+                [alert show];
+            }
+    }
+    
     [textField resignFirstResponder];
+    
+    if (settings[cur_settings_idx[textField.tag]].callback) {
+        settings[cur_settings_idx[textField.tag]].callback(self);
+        [self.tableView reloadData];
+    }
     return YES;
 }
 
@@ -1560,7 +1994,7 @@ void optUADEChangedC(id param) {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:14];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
         topLabel.numberOfLines=0;
         
@@ -1628,9 +2062,21 @@ void optUADEChangedC(id param) {
             [sliderview release];
             break;
         case MDZ_SLIDER_DISCRETE:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0+32,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             sliderview.integerMode=1;
+            [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
+            [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
+            [sliderview setContinuous:true];
+            sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
+            [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            cell.accessoryView = sliderview;
+            [sliderview release];
+            break;
+        case MDZ_SLIDER_DISCRETE_TIME:
+            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+            sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+            sliderview.integerMode=2;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
             [sliderview setContinuous:true];
@@ -1814,6 +2260,96 @@ void optUADEChangedC(id param) {
     return true;
 }
 
++(void) ONLINEswitchChanged {
+    //MODLAND
+    switch (settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value) {
+        case 0://default
+            if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(MODLAND_HOST_DEFAULT)+1);
+            strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,MODLAND_HOST_DEFAULT);
+            
+            break;
+        case 1://alt1
+            if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(MODLAND_HOST_ALT1)+1);
+            strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,MODLAND_HOST_ALT1);
+            
+            break;
+        case 2://alt2
+            if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(MODLAND_HOST_ALT2)+1);
+            strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,MODLAND_HOST_ALT2);
+            
+            break;
+        case 3://custom
+            if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+            if (settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_msgbox.text) {
+                settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_msgbox.text)+1);
+                strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_msgbox.text);
+            } else settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=NULL;
+            
+            break;
+    }
+    //HVSC
+    switch (settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_value) {
+        case 0://default
+            if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(HVSC_HOST_DEFAULT)+1);
+            strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,HVSC_HOST_DEFAULT);
+            
+            break;
+        case 1://alt1
+            if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(HVSC_HOST_ALT1)+1);
+            strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,HVSC_HOST_ALT1);
+            
+            break;
+        case 2://alt2
+            if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(HVSC_HOST_ALT2)+1);
+            strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,HVSC_HOST_ALT2);
+            
+            break;
+        case 3://custom
+            if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+            if (settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_msgbox.text) {
+                settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_msgbox.text)+1);
+                strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_msgbox.text);
+            } else settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=NULL;
+            
+            break;
+    }
+    //ASMA
+    switch (settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value) {
+        case 0://default
+            if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(ASMA_HOST_DEFAULT)+1);
+            strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,ASMA_HOST_DEFAULT);
+            
+            break;
+        case 1://alt1
+            if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(ASMA_HOST_ALT1)+1);
+            strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,ASMA_HOST_ALT1);
+            
+            break;
+        case 2://alt2
+            if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(ASMA_HOST_ALT2)+1);
+            strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,ASMA_HOST_ALT2);
+            
+            break;
+        case 3://custom
+            if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+            if (settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_msgbox.text) {
+                settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_msgbox.text)+1);
+                strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_msgbox.text);
+            } else settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=NULL;
+            
+            break;
+    }
+}
+
 -(void) FTPswitchChanged {
 	if (settings[FTP_ONOFF].detail.mdz_switch.switch_value) {
 		if ([[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]==kReachableViaWiFi) {
@@ -1837,6 +2373,16 @@ void optUADEChangedC(id param) {
 					UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Error" message:@"Warning: Unable to start FTP Server." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
 					[alert show];
 					settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
+                    
+                    ftpserver->StopListening();
+                    // Delete users
+                    ftpserver->DeleteUser(pAnonymousUser);
+                    ftpserver->DeleteUser(pUser);
+                    if (settings[FTP_STATUS].detail.mdz_msgbox.text) {
+                        free(settings[FTP_STATUS].detail.mdz_msgbox.text);
+                    }
+                    settings[FTP_STATUS].detail.mdz_msgbox.text=(char*)malloc(strlen("Inactive")+1);
+                    strcpy(settings[FTP_STATUS].detail.mdz_msgbox.text,"Inactive");
 				}
 			}
 			
@@ -1869,6 +2415,25 @@ void optUADEChangedC(id param) {
 	[tableView reloadData];
 }
 
-
+-(void) dealloc {
+    if (bServerRunning) { // Stop FTP server
+        // Stop the server
+        ftpserver->StopListening();
+        // Delete users
+        ftpserver->DeleteUser(pAnonymousUser);
+        ftpserver->DeleteUser(pUser);
+        bServerRunning = false;
+        if (settings[FTP_STATUS].detail.mdz_msgbox.text) {
+            free(settings[FTP_STATUS].detail.mdz_msgbox.text);
+        }
+    }
+    
+    if (ftpserver) {
+        delete ftpserver;
+        ftpserver=NULL;
+    }
+    
+    [super dealloc];
+}
 
 @end

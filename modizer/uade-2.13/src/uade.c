@@ -96,12 +96,12 @@ int uade_time_critical;
 static int disable_modulechange;
 static int old_ledstate;
 static int uade_big_endian;
-static int uade_dmawait;
+static int uade_dmawait=0;
 static int uade_execdebugboolean;
 static int uade_highmem;
 static char uade_player_dir[PATH_MAX];
 static struct uade_song song;
-static int uade_speed_hack;
+static int uade_speed_hack=0;
 static int voltestboolean;
 
 static char epoptions[256];
@@ -1111,8 +1111,10 @@ void uade_song_end(char *reason, int kill_it)
   um->msgtype = UADE_REPLY_SONG_END;
   ((uint32_t *) um->data)[0] = htonl(((intptr_t) sndbufpt) - ((intptr_t) sndbuffer));
   ((uint32_t *) um->data)[1] = htonl(kill_it);
-  strlcpy((char *) um->data + 8, reason, 256);
-  um->size = 8 + strlen(reason) + 1;
+  
+    strlcpy((char *) um->data + 8, reason, 256);
+    
+    um->size = 8 + strlen(reason) + 1;
   if (uade_send_message(um, &uadeipc)) {
     fprintf(stderr, "uadecore: Could not send song end message.\n");
     exit(-1);
