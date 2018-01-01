@@ -1016,6 +1016,7 @@
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/libxmp-master/src";
 			};
 			name = Debug;
 		};
@@ -1025,6 +1026,7 @@
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/libxmp-master/src";
 			};
 			name = Release;
 		};

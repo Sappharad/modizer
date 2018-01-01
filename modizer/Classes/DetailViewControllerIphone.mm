@@ -4580,7 +4580,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 #define SUBMENU2_SIZE 3
     txtSubMenuHandle[10]=0;
 	txtSubMenuHandle[11]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
-    txtSubMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
+    //txtSubMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
     
 #define SUBMENU3_START 13
 #define SUBMENU3_SIZE 3
